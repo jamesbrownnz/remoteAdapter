@@ -14,23 +14,43 @@
  */
 
 int IRPIN = 2;
-SoftwareSerial mySerial(6, 7);
+int rxPin = 7;
+int txPin = 6;
+SoftwareSerial mySerial(rxPin, txPin);
 
-struct CommandTuple {
-  int *rs232Command;
-  long irCommand;
+//struct CommandTuple {
+//  public:
+//  uint8_t *rs232Command;
+//
+//  CommandTuple(uint8_t *newRS232Command ) : rs232Command{newRS232Command} {}
+//};
 
-  CommandTuple(int *newRS232Command, long newIRCommand ) : rs232Command{newRS232Command}, irCommand{newIRCommand} {}
+struct Command {
+  char *rs232Command;
+
+  Command(char *newRS232Command ) : rs232Command{newRS232Command} {}
 };
 
-CommandTuple commandMap[] = 
+//CommandTuple commandList[] = 
+//{
+//  CommandTuple(new uint8_t[10]{0x37, 0x51, 0x06, 0xEA, 0x62, 0x01, 0x00, 0x00, 0x00, 0xE9}), // HDMI1 // 0
+//  CommandTuple(new uint8_t[10]{0x37, 0x51, 0x06, 0xEA, 0x62, 0x02, 0x00, 0x00, 0x00, 0xEA}), // HDMI2 // 1
+//  CommandTuple(new uint8_t[10]{0x37, 0x51, 0x06, 0xEA, 0x62, 0x08, 0x00, 0x00, 0x00, 0xE0}), // DP1   // 2
+//  CommandTuple(new uint8_t[10]{0x37, 0x51, 0x06, 0xEA, 0x62, 0x10, 0x00, 0x00, 0x00, 0xF8}), // DP2   // 3
+//  CommandTuple(new uint8_t[6]{0x37, 0x51, 0x02, 0xEB, 0x20, 0xAF}), // GetPowerState                  // 4
+//  CommandTuple(new uint8_t[7]{0x37, 0x51, 0x03, 0xEA, 0x20, 0x01, 0xAE }), // SetPowerStateOn         // 5
+//  CommandTuple(new uint8_t[7]{0x37, 0x51, 0x03, 0xEA, 0x20, 0x00, 0xAF}) // SetPowerStateOff          // 6
+//};
+
+Command commandList[] = 
 {
-  CommandTuple(new int[10]{0x37, 0x51, 0x06, 0xEA, 0x62, 0x01, 0x00, 0x00, 0x00, 0xE9}, 0xBA45FF00),
-  CommandTuple(new int[10]{0x37, 0x51, 0x06, 0xEA, 0x62, 0x02, 0x00, 0x00, 0x00, 0xEA}, 0xB946FF00),
-  CommandTuple(new int[10]{0x37, 0x51, 0x06, 0xEA, 0x62, 0x08, 0x00, 0x00, 0x00, 0xE0}, 0xB847FF00),
-  CommandTuple(new int[10]{0x37, 0x51, 0x06, 0xEA, 0x62, 0x10, 0x00, 0x00, 0x00, 0xF8}, 0xBB44FF00),
-  CommandTuple(new int[6]{0x37, 0x51, 0x02, 0xEB, 0x20, 0xAF}, 0xE916FF00),
-  CommandTuple(new int[7]{0x37, 0x51, 0x03, 0xEA, 0x20, 0x00, 0xAF}, 0xE916FF00)
+  Command("37 51 06 EA 62 01 00 00 00 E9"),
+  Command("37 51 06 EA 62 02 00 00 00 EA"),
+  Command("37 51 06 EA 62 08 00 00 00 E0"),
+  Command("37 51 06 EA 62 10 00 00 00 F8"),
+  Command("37 51 02 EB 20 AF"),
+  Command("37 51 03 EA 20 00 AF"),
+  Command("37 51 03 EA 20 01 AE")
 };
 
 void setup() {
@@ -48,18 +68,27 @@ void ProcessIRInput(const long hexInput)
       case 0xBA45FF00:
         // Send data command SetVideoInput 60h 2 62h W 4, 0x00000001 - HDMI1/MHL1 37-51-06-EA-62-[Data0]-…-[Data3]-CHK 
         Serial.println("Keycode: 1");
+//        mySerial.write(commandList[1].rs232Command, sizeof(commandList[1].rs232Command));
+        mySerial.write(commandList[1].rs232Command);
+        Serial.println(commandList[1].rs232Command);
         break;
       case 0xB946FF00:
         // Send data command SetVideoInput 60h 2 62h W 4, 0x00000002 - HDMI2/MHL2 37-51-06-EA-62-[Data0]-…-[Data3]-CHK 
         Serial.println("Keycode: 2");
+//        mySerial.write(commandList[2].rs232Command, sizeof(commandList[2].rs232Command));
+        mySerial.write(commandList[2].rs232Command);
         break;
       case 0xB847FF00:
         // Send data command SetVideoInput 60h 2 62h W 4, 0x00000008 - DP1 37-51-06-EA-62-[Data0]-…-[Data3]-CHK 
         Serial.println("Keycode: 3");
+//        mySerial.write(commandList[3].rs232Command, sizeof(commandList[3].rs232Command));
+        mySerial.write(commandList[3].rs232Command);
         break;
       case 0xBB44FF00:
         // Send data command SetVideoInput 60h 2 62h W 4, 0x00000010 - DP2 37-51-06-EA-62-[Data0]-…-[Data3]-CHK 
         Serial.println("Keycode: 4");
+//        mySerial.write(commandList[4].rs232Command, sizeof(commandList[4].rs232Command));
+        mySerial.write(commandList[4].rs232Command);
         break;
       case 0xBF40FF00:
         Serial.println("Keycode: 5");
@@ -83,9 +112,13 @@ void ProcessIRInput(const long hexInput)
         // GetPowerState 20h 0 20h R 0 , Power State (BYTE) 0 - off 1 - on , 37-51-02-EB-20-CHK , 1 , 6F-37-04-02-[RC]-20-[Data0]-CHK
         // SetPowerState 20h 0 20h W 1 , Power State (BYTE) 0 - off 1 - on , 37-51-03-EA-20-[Data0]-CHK , 0 , 6F-37-03-02-[RC]-20-CHK
         Serial.println("Keycode: *");
+//        mySerial.write(commandList[5].rs232Command, sizeof(commandList[5].rs232Command));
+        mySerial.write(commandList[5].rs232Command);
         break;
       case 0xF20DFF00:
         Serial.println("Keycode: #");
+//        mySerial.write(commandList[6].rs232Command, sizeof(commandList[6].rs232Command));
+        mySerial.write(commandList[6].rs232Command);
         break;
       case 0xE718FF00:
         Serial.println("Keycode: ^");
@@ -105,13 +138,17 @@ void ProcessIRInput(const long hexInput)
     }
 }
 
+
+
 void loop() {
   // put your main code here, to run repeatedly:
   if (IrReceiver.decode())
   {
     ProcessIRInput(IrReceiver.decodedIRData.decodedRawData);
-//    Serial.println(IrReceiver.decodedIRData.decodedRawData, HEX);
     IrReceiver.resume();
   }
-  delay(250);
+  
+//  if (mySerial.available()>0){
+//    mySerial.read();
+//  }
 }
