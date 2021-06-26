@@ -12,9 +12,9 @@
  * Serial.write(message, sizeof(message));
  */
 
-int IRPIN = 2;
-int rxPin = 7;
-int txPin = 6;
+int IRPIN = 3;
+int rxPin = 2;
+int txPin = 4;
 SoftwareSerial mySerial(rxPin, txPin);
 
 //struct CommandTuple {
@@ -133,9 +133,9 @@ void ProcessIRInput(const long hexInput)
   }
   else if ( IrReceiver.decodedIRData.decodedRawData == 0xE31CFF00){
     Serial.println("Keycode: OK");
-//    byte messageOk[] = {0x37, 0x51, 0x02, 0xEB, 0x01, 0x8E};
+    byte messageOk[] = {0x37, 0x51, 0x02, 0xEB, 0x01, 0x8E};
     Serial.print("Number of bytes written ");
-    Serial.print(mySerial.write("37 51 02 EB 01 8E"));//mySerial.write(messageOk, sizeof(messageOk)));
+    Serial.print(mySerial.write(messageOk, sizeof(messageOk)));
     Serial.println();
   }
 }
