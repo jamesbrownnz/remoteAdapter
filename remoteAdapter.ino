@@ -6,12 +6,16 @@
 #define bit4800Delay 188
 #define halfBit4800Delay 94
 
+// https://forum.arduino.cc/t/serial-input-basics/278284/2
 
 int IRPIN = 3;
 int rxPin = 2;
 int txPin = 4;
 
-byte[] messageName = {0x37, 0x51, 0x02, 0xEB, 0x01, 0x8E}
+const byte numChars = 32;
+char receivedChars[numChars];
+boolean newData = false;
+byte messageName[] = {0x37, 0x51, 0x02, 0xEB, 0x01, 0x8E}
 
 SoftwareSerial mySerial(rxPin, txPin);
 
