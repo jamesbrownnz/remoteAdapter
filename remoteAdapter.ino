@@ -10,6 +10,9 @@
 int IRPIN = 3;
 int rxPin = 2;
 int txPin = 4;
+
+byte[] messageName = {0x37, 0x51, 0x02, 0xEB, 0x01, 0x8E}
+
 SoftwareSerial mySerial(rxPin, txPin);
 
 void setup() {
@@ -17,6 +20,8 @@ void setup() {
  Serial.println("<Arduino is ready>");
 
  mySerial.begin(9600);
+
+ mySerial.write(messageName, sizeof(messageName));
 }
 
 void loop() {
